@@ -1,12 +1,12 @@
-package org.example.customer;
+package org.example.controller.vendor;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class CustomerController {
+public class VendorController {
 
-    @RequestMapping("/customers")
+    @RequestMapping("/vendors")
     String hello() {
         return "Hello World, Spring Boot!";
     }
