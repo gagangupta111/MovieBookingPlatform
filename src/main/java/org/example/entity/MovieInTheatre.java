@@ -51,4 +51,16 @@ public class MovieInTheatre {
     public void setSeats(List<Seat> seats) {
         this.seats = seats;
     }
+
+
+    @Override
+    public String toString() {
+        return "MovieInTheatre{" +
+                "ID='" + ID + '\'' +
+                ", movie=" + movie +
+                ", theatre=" + theatre +
+                ", dayTimeSlots=" + dayTimeSlots +
+                ", seats=" + seats +
+                '}';
+    }
 }

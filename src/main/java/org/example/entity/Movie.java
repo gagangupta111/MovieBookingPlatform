@@ -21,5 +21,11 @@ public class Movie {
         this.ID = ID;
     }
 
-
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "ID='" + ID + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

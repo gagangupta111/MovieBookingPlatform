@@ -36,4 +36,12 @@ public class DayTimeSlot {
     public int hashCode() {
         return Objects.hash(day, timeSlot);
     }
+
+    @Override
+    public String toString() {
+        return "DayTimeSlot{" +
+                "day='" + day + '\'' +
+                ", timeSlot=" + timeSlot +
+                '}';
+    }
 }

@@ -47,4 +47,15 @@ public class Booking {
     public void setDayTimeSlot(DayTimeSlot dayTimeSlot) {
         this.dayTimeSlot = dayTimeSlot;
     }
+
+    @Override
+    public String toString() {
+        return "Booking{" +
+                "movie=" + movie +
+                ", theatre=" + theatre +
+                ", customer=" + customer +
+                ", seat=" + seat +
+                ", dayTimeSlot=" + dayTimeSlot +
+                '}';
+    }
 }

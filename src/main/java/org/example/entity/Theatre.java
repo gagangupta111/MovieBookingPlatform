@@ -21,5 +21,11 @@ public class Theatre {
         this.ID = ID;
     }
 
-
+    @Override
+    public String toString() {
+        return "Theatre{" +
+                "ID='" + ID + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
