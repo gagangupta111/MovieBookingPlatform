@@ -1,7 +1,6 @@
 
 package org.example.controller;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.entity.*;
@@ -48,6 +47,12 @@ public class BasicController {
         return basicService.getAllTheatres(id);
     }
 
+    @RequestMapping(value = "/deleteTheatre/{theatre_id}", method = RequestMethod.DELETE)
+    List<Theatre> deleteTheatre(@PathVariable("theatre_id") String id) {
+
+        return basicService.deleteTheatre(id);
+    }
+
     @RequestMapping(value = "/createMovie", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     Movie createMovie(@RequestBody Movie movie) {
         return basicService.createMovie(movie.getName());
@@ -77,6 +82,12 @@ public class BasicController {
 
     }
 
+    @RequestMapping(value = "/deleteMovieInTheatre/{theatre_id}", method = RequestMethod.DELETE)
+    List<MovieInTheatre> deleteMovieInTheatre(@PathVariable("theatre_id") String id) {
+
+        return basicService.deleteMovieInTheatre(id);
+    }
+
     @RequestMapping(value = "/getMovieInTheatre", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     List<MovieInTheatre> getMovieInTheatre(@RequestBody MovieInTheatreJSON movieInTheatreJSON) throws JsonProcessingException {
         return basicService.getMovieInTheatre(movieInTheatreJSON);
@@ -92,6 +103,12 @@ public class BasicController {
     List<Booking> getBookings(@PathVariable("cust_id") String id) {
 
         return basicService.getBookings(id);
+    }
+
+    @RequestMapping(value = "/deleteBookings/{cust_id}", method = RequestMethod.DELETE)
+    List<Booking> deleteBookings(@PathVariable("cust_id") String id) {
+
+        return basicService.deleteBookings(id);
     }
 
 }

@@ -14,15 +14,22 @@ public interface BasicDao {
     public List<MovieInTheatre> getMoviesInTheatre(MovieInTheatreJSON movieInTheatreJSON);
     public Customer createCustomer(String name);
     public Theatre createTheatre(String name);
+    public List<Theatre> deleteTheatre(String name);
     public Movie createMovie(String name);
-    public MovieInTheatre createMovieInTheatre(String movieID, String theatreID, String day, TimeSlot timeSlot);
-    public List<Booking> findBookings(String movieID, String theatreID, String day, TimeSlot timeSlot, String customerID);
-    public List<Booking> findBookings(String customerID);
-    public List<MovieInTheatre> findMovieInTheatre(String movieID, String theatreID, String day, TimeSlot timeSlot);
+
     public List<Theatre> getTheatres();
     public void setTheatres(List<Theatre> theatres);
     public List<Theatre> getAllTheatres();
+    public MovieInTheatre createMovieInTheatre(String movieID, String theatreID, String day, TimeSlot timeSlot);
+
+    public List<MovieInTheatre> deleteMovieInTheatre(String theatreID);
+
+    public List<MovieInTheatre> findMovieInTheatre(String movieID, String theatreID, String day, TimeSlot timeSlot);
     public Booking creatBooking(BookingJSON bookingJSON);
+    public List<Booking> findBookings(String movieID, String theatreID, String day, TimeSlot timeSlot, String customerID);
+    public List<Booking> findBookings(String customerID);
+
+    public List<Booking> deleteBooking(String customerID);
 
 
 }

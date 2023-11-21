@@ -2,6 +2,7 @@ package org.example.entity;
 
 public class Booking {
 
+    private String ID;
     private Movie movie;
     private Theatre theatre;
     private Customer customer;
@@ -48,10 +49,19 @@ public class Booking {
         this.dayTimeSlot = dayTimeSlot;
     }
 
+    public String getID() {
+        return ID;
+    }
+
+    public void setID(String ID) {
+        this.ID = ID;
+    }
+
     @Override
     public String toString() {
         return "Booking{" +
-                "movie=" + movie +
+                "ID='" + ID + '\'' +
+                ", movie=" + movie +
                 ", theatre=" + theatre +
                 ", customer=" + customer +
                 ", seat=" + seat +

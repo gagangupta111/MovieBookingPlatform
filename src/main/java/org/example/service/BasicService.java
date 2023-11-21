@@ -42,6 +42,10 @@ public class BasicService {
         return basicDao.createTheatre(name);
     }
 
+    public List<Theatre> deleteTheatre(String name){
+        return basicDao.deleteTheatre(name);
+    }
+
     public Customer createCustomer(String name){
         return basicDao.createCustomer(name);
     }
@@ -65,6 +69,15 @@ public class BasicService {
 
     public List<Booking> getBookings(String id){
         return basicDao.findBookings(id);
+    }
+
+    public List<Booking> deleteBookings(String id){
+        return basicDao.deleteBooking(id);
+    }
+
+    public List<MovieInTheatre> deleteMovieInTheatre(String theatre_id){
+
+        return basicDao.deleteMovieInTheatre(theatre_id);
     }
 
 }
