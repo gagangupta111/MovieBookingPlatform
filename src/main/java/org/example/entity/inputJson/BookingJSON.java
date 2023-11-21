@@ -6,9 +6,18 @@ public class BookingJSON {
     private String movieID;
     private String theatreID;
     private String customerID;
+    private String day;
     private int from;
     private int to;
     private String seat;
+
+    public String getDay() {
+        return day;
+    }
+
+    public void setDay(String day) {
+        this.day = day;
+    }
 
     public BookingJSON() {
     }

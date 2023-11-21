@@ -1,10 +1,10 @@
 
 package org.example.controller;
 
-import org.example.entity.Customer;
-import org.example.entity.Movie;
-import org.example.entity.MovieInTheatre;
-import org.example.entity.Theatre;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.entity.*;
 import org.example.entity.inputJson.BookingJSON;
 import org.example.entity.inputJson.MovieInTheatreJSON;
 import org.example.service.BasicService;
@@ -60,19 +60,38 @@ public class BasicController {
     }
 
     @RequestMapping(value = "/createMovieInTheatre", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    MovieInTheatre createMovieInTheatre(@RequestBody MovieInTheatreJSON movieInTheatreJSON) {
-        return basicService.createMovieInTheatre(movieInTheatreJSON);
+    Response createMovieInTheatre(@RequestBody MovieInTheatreJSON movieInTheatreJSON) throws JsonProcessingException {
+        MovieInTheatre movieInTheatre = basicService.createMovieInTheatre(movieInTheatreJSON);
+        Response response = new Response();
+        if (movieInTheatre == null){
+            response.setSuccess(false);
+            response.setMessage("Already exists");
+        }else {
+            response.setSuccess(true);
+            ObjectMapper Obj = new ObjectMapper();
+            String jsonStr = Obj.writeValueAsString(movieInTheatre);
+            response.setMessage(jsonStr);
+        }
+
+        return response;
+
     }
 
-    @RequestMapping(value = "/getMovieInTheatre/{id}/{type}", method = RequestMethod.GET)
-    List<MovieInTheatre> getMovieInTheatre(@PathVariable("id") String id, @PathVariable("type") String type) {
-
-        return basicService.getMovieInTheatre(id, type);
+    @RequestMapping(value = "/getMovieInTheatre", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    List<MovieInTheatre> getMovieInTheatre(@RequestBody MovieInTheatreJSON movieInTheatreJSON) throws JsonProcessingException {
+        return basicService.getMovieInTheatre(movieInTheatreJSON);
     }
 
     @RequestMapping(value = "/createBooking", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    String createBooking(@RequestBody BookingJSON bookingJSON) {
-        System.out.println(bookingJSON);
-        return "";
+    Booking createBooking(@RequestBody BookingJSON bookingJSON) {
+
+        return basicService.createBooking(bookingJSON);
     }
+
+    @RequestMapping(value = "/getBookings/{cust_id}", method = RequestMethod.GET)
+    List<Booking> getBookings(@PathVariable("cust_id") String id) {
+
+        return basicService.getBookings(id);
+    }
+
 }

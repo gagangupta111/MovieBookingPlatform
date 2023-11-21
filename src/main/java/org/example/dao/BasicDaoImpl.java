@@ -1,6 +1,7 @@
 package org.example.dao;
 
 import org.example.entity.*;
+import org.example.entity.inputJson.BookingJSON;
 import org.example.entity.inputJson.MovieInTheatreJSON;
 import org.example.util.Basic;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -97,13 +98,7 @@ public class BasicDaoImpl implements BasicDao {
         List<MovieInTheatre> list = findMovieInTheatre(movieID, theatreID, day, timeSlot);
 
         if (!list.isEmpty()){
-            for (MovieInTheatre movieInTheatre : list){
-                for (DayTimeSlot dayTimeSlot : movieInTheatre.getDayTimeSlots()){
-                    if (dayTimeSlot.getDay().equals(day) && dayTimeSlot.getTimeSlot().equals(timeSlot)){
-                        return null;
-                    }
-                }
-            }
+            return null;
         }
 
         MovieInTheatre movieInTheatre = new MovieInTheatre();
@@ -117,45 +112,166 @@ public class BasicDaoImpl implements BasicDao {
         list1.add(dayTimeSlot);
 
         movieInTheatre.setDayTimeSlots(list1);
+        List<Seat> seats = createSeats(5);
+        movieInTheatre.setSeats(seats);
         movieInTheatres.add(movieInTheatre);
         return movieInTheatre;
     }
 
-    public List<Booking> findBookings(String movieID, String theatreID, String day, TimeSlot timeSlot, String seat, String customerID) {
+    public List<Seat> createSeats(int size){
+        List<Seat> seats = new ArrayList<>(5);
+        for (int i = 0 ; i < size; i++){
+            seats.add(new Seat());
+        }
+        return seats;
+    }
+
+    @Override
+    public Booking creatBooking(BookingJSON bookingJSON){
+
+        TimeSlot timeSlot = new TimeSlot();
+        timeSlot.setFrom(bookingJSON.getFrom());
+        timeSlot.setTo(bookingJSON.getTo());
+
+        List<Booking> list = findBookings(bookingJSON.getMovieID(),
+                bookingJSON.getTheatreID(), bookingJSON.getDay(), timeSlot, bookingJSON.getCustomerID());
+
+        if (!list.isEmpty()){
+            return null;
+        }
+
+        List<MovieInTheatre> movieInTheatreList = findMovieInTheatre(bookingJSON.getMovieID(),
+                bookingJSON.getTheatreID(), bookingJSON.getDay(), timeSlot );
+
+        if (movieInTheatreList.isEmpty()){
+            return null;
+        }
+
+        MovieInTheatre movieInTheatre = movieInTheatreList.get(0);
+        Seat seat = getEmptySeat(movieInTheatre, Integer.parseInt(bookingJSON.getSeat()));
+
+        if (seat == null){
+            seat = getEmptySeat(movieInTheatre);
+            if (seat == null){
+                return null;
+            }
+        }
+
+        seat.setBooked(true);
+        seat.setCustomer(getCustomers(bookingJSON.getCustomerID()).get(0));
+
+        Booking booking = new Booking();
+        booking.setCustomer(getCustomers(bookingJSON.getCustomerID()).get(0));
+        booking.setTheatre(movieInTheatre.getTheatre());
+        booking.setMovie(movieInTheatre.getMovie());
+
+        DayTimeSlot dayTimeSlot = new DayTimeSlot();
+        dayTimeSlot.setDay(bookingJSON.getDay());
+        dayTimeSlot.setTimeSlot(timeSlot);
+
+        booking.setDayTimeSlot(dayTimeSlot);
+        booking.setSeat(seat);
+        bookings.add(booking);
+        return booking;
+
+    }
+
+    public Seat getEmptySeat(MovieInTheatre movieInTheatre){
+        for (Seat seat : movieInTheatre.getSeats()){
+            if (!seat.isBooked()){
+                return seat;
+            }
+        }
+        return null;
+    }
+
+    public Seat getEmptySeat(MovieInTheatre movieInTheatre, int seatNumber){
+
+        seatNumber--;
+        Seat seat = movieInTheatre.getSeats().get(seatNumber);
+        if (!seat.isBooked()){
+            return seat;
+        }
+        return null;
+    }
+
+    public List<Booking> findBookings(String movieID, String theatreID, String day, TimeSlot timeSlot, String customerID) {
 
         return bookings.stream()
-                .filter(a -> a.getMovie().getID().equals(movieID))
-                .filter(a -> a.getTheatre().getID().equals(theatreID))
+                .filter(a -> a.getMovie().getID().equals(movieID) || a.getMovie().getName().equals(movieID) )
+                .filter(a -> a.getTheatre().getID().equals(theatreID) || a.getTheatre().getName().equals(theatreID))
                 .filter(a -> a.getDayTimeSlot().getDay().equals(day))
                 .filter(a -> a.getDayTimeSlot().getTimeSlot().equals(timeSlot))
-                .filter(a -> a.getSeat().getID().equals(seat))
-                .filter(a -> a.getSeat().getCustomer().getID().equals(customerID))
+                .filter(a -> a.getSeat().getCustomer().getID().equals(customerID) || a.getSeat().getCustomer().getName().equals(customerID))
                 .collect(Collectors.toList());
     }
 
-    public List<MovieInTheatre> getMoviesInTheatre(String id, String type) {
+    public List<Booking> findBookings(String customerID) {
 
-        List<MovieInTheatre> list;
+        return bookings.stream()
+                .filter(a -> a.getSeat().getCustomer().getID().equals(customerID)
+                || a.getSeat().getCustomer().getName().equals(customerID))
+                .collect(Collectors.toList());
+    }
 
-        if ("movies".equals(type)){
-            list = movieInTheatres.stream().filter(a -> a.getMovie().getID().equals(id)).collect(Collectors.toList());
-            if (list.isEmpty()){
-                list = movieInTheatres.stream().filter(a -> a.getMovie().getName().equals(id)).collect(Collectors.toList());
-            }
-        }else {
-            list = movieInTheatres.stream().filter(a -> a.getTheatre().getID().equals(id)).collect(Collectors.toList());
-            if (list.isEmpty()){
-                list = movieInTheatres.stream().filter(a -> a.getTheatre().getName().equals(id)).collect(Collectors.toList());
-            }
+    public List<MovieInTheatre> getMoviesInTheatre(MovieInTheatreJSON movieInTheatreJSON) {
+
+        List<MovieInTheatre> list = movieInTheatres;
+        if (movieInTheatreJSON.getMovieID() != null){
+            list = list.stream()
+                    .filter((a) -> a.getMovie().getID().equals(movieInTheatreJSON.getMovieID())
+                            || a.getMovie().getName().equals(movieInTheatreJSON.getMovieID()))
+                    .collect(Collectors.toList());
         }
+
+        if (movieInTheatreJSON.getTheatreID() != null){
+            list = list.stream()
+                    .filter((a) -> a.getTheatre().getID().equals(movieInTheatreJSON.getTheatreID())
+                            || a.getTheatre().getName().equals(movieInTheatreJSON.getTheatreID()))
+                    .collect(Collectors.toList());
+        }
+
+        if (movieInTheatreJSON.getDay() != null){
+            List<MovieInTheatre> returnList = new ArrayList<>();
+            if (movieInTheatreJSON.getDay() != null){
+                for (MovieInTheatre movieInTheatre : list){
+                    for (DayTimeSlot dayTimeSlot : movieInTheatre.getDayTimeSlots()){
+                        if (dayTimeSlot.getDay().equals(movieInTheatreJSON.getDay())){
+                            returnList.add(movieInTheatre);
+                        }
+                    }
+                }
+            }
+            list = returnList;
+        }
+
         return list;
     }
 
     public List<MovieInTheatre> findMovieInTheatre(String movieID, String theatreID, String day, TimeSlot timeSlot) {
 
+        List<MovieInTheatre> list = movieInTheatres.stream().
+                filter((a) -> a.getMovie().getID().equals(movieID) || a.getMovie().getName().equals(movieID)).
+                filter((a) -> a.getTheatre().getID().equals(theatreID) || a.getTheatre().getName().equals(theatreID))
+                .collect(Collectors.toList());
+
+        List<MovieInTheatre> returnList = new ArrayList<>();
+        for (MovieInTheatre movieInTheatre : list){
+            for (DayTimeSlot dayTimeSlot : movieInTheatre.getDayTimeSlots()){
+                if (dayTimeSlot.getDay().equals(day) && dayTimeSlot.getTimeSlot().equals(timeSlot)){
+                    returnList.add(movieInTheatre);
+                }
+            }
+        }
+        return returnList;
+    }
+
+    public List<MovieInTheatre> findMovieInTheatre(String movieID, String theatreID) {
+
         return movieInTheatres.stream().
-                filter((a) -> a.getMovie().getID().equals(movieID)).
-                filter((a) -> a.getTheatre().getID().equals(theatreID)).collect(Collectors.toList());
+                filter((a) -> a.getMovie().getID().equals(movieID) || a.getMovie().getName().equals(movieID)).
+                filter((a) -> a.getTheatre().getID().equals(theatreID) || a.getTheatre().getName().equals(theatreID))
+                .collect(Collectors.toList());
     }
 
     public List<Theatre> getTheatres() {
@@ -170,4 +286,6 @@ public class BasicDaoImpl implements BasicDao {
     public List<Theatre> getAllTheatres() {
         return theatres;
     }
+
+
 }
